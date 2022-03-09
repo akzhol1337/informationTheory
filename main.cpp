@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <unordered_map>
+#include <queue>
 
 using namespace std;
 
@@ -10,7 +11,9 @@ bool cmp(pair<char,float> a, pair<char,float> b){
     return a.second > b.second;
 }
 
-vector<pair<char,float>> getCharProbabilitiesInFile(string file_name){
+// first = total characters
+
+pair<long long, priority_queue<pair<int,char> >> getCharFrequenciesInFile(string file_name){
     ifstream file;
     file.open("./" + file_name);
 
@@ -18,45 +21,36 @@ vector<pair<char,float>> getCharProbabilitiesInFile(string file_name){
         cout << "Can't find file sample_data.txt";
         return {};
     } else {
-        unordered_map<char, float> mp;
-        string str;
-        bool first_line = true;
+        priority_queue<pair<int, char>> pq;
+        unordered_map<char,int> frequency_map;
 
         int total_length = 0;
-        while(getline(file, str)) {
+        string cur_line;
+
+        bool first_line = true;
+
+        while(getline(file, cur_line)) {
             if(!first_line){
-                mp['\n']++;
+                frequency_map['\n']++;
                 total_length++;
             }
-            for(auto ch : str){
+            for(auto ch : cur_line){
+                frequency_map[ch]++;
                 total_length++;
-                mp[ch]++;
             }
             first_line = false;
         }
-        vector<pair<char, float>> sorted_probabilities;
 
-        sorted_probabilities.reserve(mp.size());
-        for(auto to : mp){
-            sorted_probabilities.emplace_back(to.first, to.second/(float)total_length);
+        for(auto to : frequency_map){
+            cout << to.first << " " << to.second << "\n";
+            pq.push({to.second, to.first});
         }
 
-        // sort in descending order by probability
-        sort(sorted_probabilities.begin(), sorted_probabilities.end(), &cmp);
-        return sorted_probabilities;
+        return {total_length, pq};
     }
 }
 
 int main() {
-    for(auto to : getCharProbabilitiesInFile("sample_data.txt")){
-        if(to.first == '\n'){
-            cout << "new line";
-        } else if(to.first == ' '){
-            cout << "space";
-        } else {
-            cout << to.first;
-        }
-        cout << ": ";
-        printf("%.3f\n", to.second);
-    }
+    pair<int, priority_queue<pair<int, char>> > ans = getCharFrequenciesInFile("sample_data.txt");
+
 }

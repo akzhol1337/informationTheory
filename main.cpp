@@ -7,13 +7,35 @@
 
 using namespace std;
 
-bool cmp(pair<char,float> a, pair<char,float> b){
-    return a.second > b.second;
-}
+struct HuffmanTreeNode {
+    char data;
+    long long frequency;
 
-// first = total characters
+    HuffmanTreeNode* left;
+    HuffmanTreeNode* right;
 
-pair<long long, priority_queue<pair<long long,char> >> getCharFrequenciesInFile(string file_name){
+    HuffmanTreeNode(char data, long long frequency){
+        this->data = data;
+        this->frequency = frequency;
+        left = nullptr;
+        right = nullptr;
+    }
+
+    HuffmanTreeNode(char data, long long frequency, HuffmanTreeNode* left, HuffmanTreeNode* right){
+        this->data = data;
+        this->frequency = frequency;
+        this->left = left;
+        this->right = right;
+    }
+};
+
+struct maxHeapCompare{
+    bool operator()(const HuffmanTreeNode* lhs, const HuffmanTreeNode* rhs){
+        return lhs->frequency < rhs->frequency;
+    }
+};
+
+pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare >> getCharFrequenciesInFile(string file_name){
     ifstream file;
     file.open("./" + file_name);
 
@@ -21,7 +43,7 @@ pair<long long, priority_queue<pair<long long,char> >> getCharFrequenciesInFile(
         cout << "Can't find file sample_data.txt";
         return {};
     } else {
-        priority_queue<pair<long long, char>> pq;
+        priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare> maxHeap;
         unordered_map<char,long long> frequency_map;
 
         long long total_length = 0;
@@ -42,32 +64,35 @@ pair<long long, priority_queue<pair<long long,char> >> getCharFrequenciesInFile(
         }
 
         for(auto to : frequency_map){
-            pq.push({to.second, to.first});
+            auto* huffmanTreeNode = new HuffmanTreeNode(to.first, to.second);
+            maxHeap.push(huffmanTreeNode);
         }
-
-        return {total_length, pq};
+        file.close();
+        return {total_length, maxHeap};
     }
 }
 
-int main() {
-    pair<long long, priority_queue<pair<long long, char>> > ans = getCharFrequenciesInFile("sample_data.txt");
-    
+int main(){
+    pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare>> ans = getCharFrequenciesInFile("sample_data.txt");
+
     long long total_length = ans.first;
-    priority_queue<pair<long long, char>> pq = ans.second;
 
-    while(!pq.empty()){
-        pair<long long, char> cur = pq.top();
-        pq.pop();
+    priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare> maxHeap = ans.second;
+   
 
-        if(cur.second == '\n'){
+    while(!maxHeap.empty()){
+        HuffmanTreeNode* maxNode = maxHeap.top();
+        maxHeap.pop();
+
+        if(maxNode->data == '\n'){
             cout << "new line";
-        } else if(cur.second == ' '){
+        } else if(maxNode->data == ' '){
             cout << "space";
         } else {
-            cout << cur.second;
+            cout << maxNode->data;
         }
         cout << ": ";
-        printf("%.3f\n", cur.first * 1.0 / total_length);
+        printf("%.3f\n", maxNode->frequency * 1.0 / total_length);
     }
 
 }

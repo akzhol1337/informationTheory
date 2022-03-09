@@ -10,12 +10,13 @@ bool cmp(pair<char,float> a, pair<char,float> b){
     return a.second > b.second;
 }
 
-int main() {
+vector<pair<char,float>> getCharProbabilitiesInFile(string file_name){
     ifstream file;
-    file.open("./sample_data.txt");
+    file.open("./" + file_name);
 
     if(!file){
         cout << "Can't find file sample_data.txt";
+        return {};
     } else {
         unordered_map<char, float> mp;
         string str;
@@ -42,18 +43,20 @@ int main() {
 
         // sort in descending order by probability
         sort(sorted_probabilities.begin(), sorted_probabilities.end(), &cmp);
+        return sorted_probabilities;
+    }
+}
 
-        for(auto to : sorted_probabilities){
-            if(to.first == '\n'){
-                cout << "new line";
-            } else if(to.first == ' '){
-                cout << "space";
-            } else {
-                cout << to.first;
-            }
-            cout << ": ";
-            printf("%.3f\n", to.second);
+int main() {
+    for(auto to : getCharProbabilitiesInFile("sample_data.txt")){
+        if(to.first == '\n'){
+            cout << "new line";
+        } else if(to.first == ' '){
+            cout << "space";
+        } else {
+            cout << to.first;
         }
-
+        cout << ": ";
+        printf("%.3f\n", to.second);
     }
 }

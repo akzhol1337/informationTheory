@@ -13,7 +13,7 @@ bool cmp(pair<char,float> a, pair<char,float> b){
 
 // first = total characters
 
-pair<long long, priority_queue<pair<int,char> >> getCharFrequenciesInFile(string file_name){
+pair<long long, priority_queue<pair<long long,char> >> getCharFrequenciesInFile(string file_name){
     ifstream file;
     file.open("./" + file_name);
 
@@ -21,10 +21,10 @@ pair<long long, priority_queue<pair<int,char> >> getCharFrequenciesInFile(string
         cout << "Can't find file sample_data.txt";
         return {};
     } else {
-        priority_queue<pair<int, char>> pq;
-        unordered_map<char,int> frequency_map;
+        priority_queue<pair<long long, char>> pq;
+        unordered_map<char,long long> frequency_map;
 
-        int total_length = 0;
+        long long total_length = 0;
         string cur_line;
 
         bool first_line = true;
@@ -42,7 +42,6 @@ pair<long long, priority_queue<pair<int,char> >> getCharFrequenciesInFile(string
         }
 
         for(auto to : frequency_map){
-            cout << to.first << " " << to.second << "\n";
             pq.push({to.second, to.first});
         }
 
@@ -51,6 +50,24 @@ pair<long long, priority_queue<pair<int,char> >> getCharFrequenciesInFile(string
 }
 
 int main() {
-    pair<int, priority_queue<pair<int, char>> > ans = getCharFrequenciesInFile("sample_data.txt");
+    pair<long long, priority_queue<pair<long long, char>> > ans = getCharFrequenciesInFile("sample_data.txt");
+    
+    long long total_length = ans.first;
+    priority_queue<pair<long long, char>> pq = ans.second;
+
+    while(!pq.empty()){
+        pair<long long, char> cur = pq.top();
+        pq.pop();
+
+        if(cur.second == '\n'){
+            cout << "new line";
+        } else if(cur.second == ' '){
+            cout << "space";
+        } else {
+            cout << cur.second;
+        }
+        cout << ": ";
+        printf("%.3f\n", cur.first * 1.0 / total_length);
+    }
 
 }

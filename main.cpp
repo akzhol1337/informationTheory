@@ -7,7 +7,7 @@
 using namespace std;
 
 bool cmp(pair<char,float> a, pair<char,float> b){
-    return a.second >= b.second;
+    return a.second > b.second;
 }
 
 int main() {

@@ -1,11 +1,21 @@
+<strong> --------------- You can navigate by choosing another branch! --------------- </strong>
+
 In the main we have <code> getCharFrequenciesInFile(string file_name)</code> function <br>
 
-In the parameters, we need to enter file name from which we need to calculate probabilities <br>
+In the parameters, we need to put file name from which we need to calculate probabilities <br>
   
-It returns <code> pair<long long, priority_queue<pair<long long,char> >> </code> <br>
+It returns <code> pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare >> </code> <br>
 <hr>
 first = total_number of characters in our file <br>
-second = priority queue (max heap tree) which stores <code> pair<long long, char> </code> (frequency of character, character itself) <br>
+second = priority queue (max heap tree) which stores <code>HuffmanTreeNode*</code><br>
+  <code><pre>struct HuffmanTreeNode { 
+    char data; 
+    long long frequency; 
+    HuffmanTreeNode* left;
+    HuffmanTreeNode* right; 
+  }</pre></code>
+  
+  It it used to build Huffman Tree, but in that code we just saving there character and it's frequency
 <hr>
 I have used two data structures for calculating probability
 <ul>

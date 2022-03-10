@@ -93,7 +93,6 @@ HuffmanTreeNode* buildTree(priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNo
     HuffmanTreeNode* leftNode;
     HuffmanTreeNode* rightNode;
     HuffmanTreeNode* parentNode;
-    int nodeNumber = 
 
     while(minHeap.size() > 1){
         leftNode = minHeap.top();
@@ -129,6 +128,17 @@ void traverseTree(HuffmanTreeNode* root, string code = ""){
     traverseTree(root->right, code + "1");
 }
 
+void getSequence(HuffmanTreeNode* root, string& sequence, string code = ""){
+    if(root == nullptr){
+        return;
+    }
+    if(root->data != '#'){
+        sequence += code;
+    }
+    getSequence(root->left, sequence, code + "0");
+    getSequence(root->right, sequence, code + "1");
+}
+
 int main(){
     pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare>> ans = getCharFrequenciesInFile("sample_data.txt");
 
@@ -157,6 +167,13 @@ int main(){
     HuffmanTreeNode* root = buildTree(minHeap);
 
     traverseTree(root);
+
+    cout << "\n";
+
+    string binarySequence = "";
+    getSequence(root, binarySequence);
+
+    cout << binarySequence;
 
     
 }

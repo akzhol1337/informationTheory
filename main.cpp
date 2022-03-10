@@ -8,6 +8,7 @@
 using namespace std;
 
 long long total_length;
+long long total_bits;
 
 struct HuffmanTreeNode {
     char data;
@@ -71,11 +72,13 @@ pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHe
         while(getline(file, cur_line)) {
             if(!first_line){
                 frequency_map['\n']++;
+                total_bits += 16;
                 total_length++;
             }
             for(auto ch : cur_line){
                 frequency_map[ch]++;
                 total_length++;
+                total_bits += 8;
             }
             first_line = false;
         }
@@ -173,7 +176,10 @@ int main(){
     string binarySequence = "";
     getSequence(root, binarySequence);
 
-    cout << binarySequence;
 
+    cout << "Number of bits in the original text: " << total_bits << " bits\n";
+    cout << "Number of bits in the compressed text: " << binarySequence.size() << " bits\n";
+    printf("Compression ratio: %.2f\n", total_bits * 1.0 / binarySequence.size());
+    printf("Average code length: %.2f bits/symbol\n", binarySequence.size() * 1.0 / total_length);
     
 }

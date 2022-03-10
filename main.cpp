@@ -10,6 +10,8 @@ using namespace std;
 long long total_length;
 long long total_bits;
 
+string original_file_content;
+
 struct HuffmanTreeNode {
     char data;
     long long frequency;
@@ -44,35 +46,29 @@ struct minHeapCompare{
     }
 };
 
-priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, minHeapCompare > fromMaxHeapToMinHeap(priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare > maxHeap){
-    priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, minHeapCompare> minHeap;
-    while(!maxHeap.empty()){
-        minHeap.push(maxHeap.top());
-        maxHeap.pop();
-    }
-    return minHeap;
-}
+priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare> maxHeap;
+priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, minHeapCompare> minHeap;
 
-pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare >> getCharFrequenciesInFile(string file_name){
+void getCharFrequenciesInFile(string file_name){
     ifstream file;
     file.open("./" + file_name);
 
     if(!file){
-        cout << "Can't find file sample_data.txt";
-        return {};
+        cout << "Can't find file " << file_name << "\n";
+        exit(0);
     } else {
-        priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare> maxHeap;
         unordered_map<char,long long> frequency_map;
 
-        long long total_length = 0;
         string cur_line;
 
         bool first_line = true;
 
         while(getline(file, cur_line)) {
+            original_file_content += cur_line;
             if(!first_line){
                 frequency_map['\n']++;
-                total_bits += 16;
+                original_file_content += '\n';
+                total_bits += 8;
                 total_length++;
             }
             for(auto ch : cur_line){
@@ -87,8 +83,14 @@ pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHe
             auto* huffmanTreeNode = new HuffmanTreeNode(to.first, to.second);
             maxHeap.push(huffmanTreeNode);
         }
+
+        for(auto to : frequency_map){
+            auto* huffmanTreeNode = new HuffmanTreeNode(to.first, to.second);
+            minHeap.push(huffmanTreeNode);
+        }
+
+
         file.close();
-        return {total_length, maxHeap};
     }
 }
 
@@ -97,16 +99,10 @@ HuffmanTreeNode* buildTree(priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNo
     HuffmanTreeNode* rightNode;
     HuffmanTreeNode* parentNode;
 
-    while(minHeap.size() > 1){
-        leftNode = minHeap.top();
-        minHeap.pop();
-        rightNode = minHeap.top();
-        minHeap.pop();
-
-
-
+    while(minHeap.size() != 1){
+        leftNode = minHeap.top(); minHeap.pop();
+        rightNode = minHeap.top(); minHeap.pop();
         parentNode = new HuffmanTreeNode('#', leftNode->frequency + rightNode->frequency, leftNode, rightNode);
-
         minHeap.push(parentNode);
     }
     return minHeap.top();
@@ -131,15 +127,15 @@ void traverseTree(HuffmanTreeNode* root, string code = ""){
     traverseTree(root->right, code + "1");
 }
 
-void getSequence(HuffmanTreeNode* root, string& sequence, string code = ""){
+void getBinarySequence(HuffmanTreeNode* root, unordered_map<char, string>& binaryCodes, string code = ""){
     if(root == nullptr){
         return;
     }
     if(root->data != '#'){
-        sequence += code;
+        binaryCodes[root->data] = code;
     }
-    getSequence(root->left, sequence, code + "0");
-    getSequence(root->right, sequence, code + "1");
+    getBinarySequence(root->left, binaryCodes, code + "0");
+    getBinarySequence(root->right, binaryCodes, code + "1");
 }
 
 void createAndSaveToFile(string codeSequence, string fileName){
@@ -149,12 +145,8 @@ void createAndSaveToFile(string codeSequence, string fileName){
 }
 
 int main(){
-    pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare>> ans = getCharFrequenciesInFile("sample_data.txt");
+    getCharFrequenciesInFile("sample_data.txt");
 
-    total_length = ans.first;
-
-    priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare> maxHeap = ans.second;
-    priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, minHeapCompare> minHeap = fromMaxHeapToMinHeap(maxHeap);
 
     //probabilities in descending order
     while(!maxHeap.empty()){
@@ -179,8 +171,15 @@ int main(){
 
     cout << "\n";
 
+    unordered_map<char, string> binaryCodes;
+    getBinarySequence(root, binaryCodes);
+
     string binarySequence = "";
-    getSequence(root, binarySequence);
+    
+
+    for(auto to : original_file_content){
+        binarySequence += binaryCodes[to];
+    }
 
     createAndSaveToFile(binarySequence, "binary_sequence.txt");
 

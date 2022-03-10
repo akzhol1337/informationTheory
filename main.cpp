@@ -142,6 +142,12 @@ void getSequence(HuffmanTreeNode* root, string& sequence, string code = ""){
     getSequence(root->right, sequence, code + "1");
 }
 
+void createAndSaveToFile(string codeSequence, string fileName){
+    ofstream file(fileName);
+    file << codeSequence;
+    file.close();
+}
+
 int main(){
     pair<long long, priority_queue<HuffmanTreeNode*, vector<HuffmanTreeNode*>, maxHeapCompare>> ans = getCharFrequenciesInFile("sample_data.txt");
 
@@ -176,6 +182,7 @@ int main(){
     string binarySequence = "";
     getSequence(root, binarySequence);
 
+    createAndSaveToFile(binarySequence, "binary_sequence.txt");
 
     cout << "Number of bits in the original text: " << total_bits << " bits\n";
     cout << "Number of bits in the compressed text: " << binarySequence.size() << " bits\n";
